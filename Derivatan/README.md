@@ -1,5 +1,6 @@
 # How to run Elixir
 
-1. mix new (name of file)
-2. iex -S mix
-3. modulename.functionname
+1. Create new file
+2. iex
+3. c("filename.ex")
+4. defmoduleName.defName
