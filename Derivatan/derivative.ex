@@ -15,6 +15,7 @@ defmodule Derivative do
           {:num, 4}
         }
     d = deriv(e, :x)
+
     IO.write("Expression: #{pprint(e)}\n")
     IO.write("Derivative: #{pprint(d)}\n")
     IO.write("Simplified: #{pprint(simplify(d))}\n")
@@ -33,6 +34,7 @@ defmodule Derivative do
     :ok
   end
 
+  # Rules for differentiation
   def deriv({:num, _}, _) do {:num, 0} end
   def deriv({:var, v}, v) do {:num, 1} end
   def deriv({:var, _}, _) do {:num, 0} end
@@ -58,6 +60,12 @@ defmodule Derivative do
     }
   end
 
+  # Rule for x^n
+  # Rule for ln(x)
+  # Rule for sqrt(x)
+  # Rule for sin(x)
+
+  # Simplification
   def simplify({:add, e1, e2}) do
     simplify_add(simplify(e1), simplify(e2))
   end
@@ -77,7 +85,7 @@ defmodule Derivative do
   end
   def simplify_add(e1, e2)  do {:add, e1, e2} end
 
-  # Simplification for multiply
+  # Simplification for multiplication
   def simplify_mul({:num, 0}, _) do {:num, 0} end
   def simplify_mul(_, {:num, 0})  do {:num, 0} end
   def simplify_mul({:num, 1}, e2) do e2 end
@@ -92,15 +100,26 @@ defmodule Derivative do
   def simplify_exp(e1, {:num, 1})  do e1 end
   def simplify_exp(e1, e2)  do {:exp, e1, e2} end
 
+  # Simplification for x^n
+  # Simplification for ln(x)
+  # Simplification for sqrt(x)
+  # Simplification for sin(x)
+
   # Pretty print
   def pprint({:num, n}) do "#{n}" end
   def pprint({:var, v}) do "#{v}" end
+
+  # Pretty print for addition
   def pprint({:add, e1, e2}) do
     "(#{pprint(e1)} + #{pprint(e2)})"
   end
+
+  # Pretty print for multiplication
   def pprint({:mul, e1, e2}) do
     "#{pprint(e1)} * #{pprint(e2)}"
   end
+
+  # Pretty print for exponent
   def pprint({:exp, e1, e2}) do
     "#{pprint(e1)}^(#{pprint(e2)})"
   end
