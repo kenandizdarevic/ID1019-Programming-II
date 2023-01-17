@@ -7,9 +7,13 @@ defmodule Derivative do
     | {:mul, expr(), expr()}
     | {:sub, expr(), expr()}
     | {:exp, expr(), literal()}
+    | {:ln, expr()}
+    | {:div, expr(), expr()}
+    | {:sqrt, expr()}
+    | {:sin, expr()}
 
-  # Test cases
-  def test1() do
+  # ----------- Test cases -----------
+  def testMul() do
     e = {:add,
           {:mul, {:num, 2}, {:var, :x}},
           {:num, 4}
@@ -22,7 +26,7 @@ defmodule Derivative do
     :ok
   end
 
-  def test2() do
+  def testAdd() do
     e = {:add,
           {:exp, {:var, :x}, {:num, 3}},
           {:num, 4}
@@ -33,6 +37,16 @@ defmodule Derivative do
     IO.write("Simplified: #{pprint(simplify(d))}\n")
     :ok
   end
+
+  def testLn() do
+    e = {:ln, {:mul, {:num, 6}, {:var, :x}}}
+    d = deriv(e, :x)
+    IO.write("Expression: #{pprint(e)}\n")
+    IO.write("Derivative: #{pprint(d)}\n")
+    IO.write("Simplified: #{pprint(simplify(d))}\n")
+    :ok
+  end
+  # ----------------------------------
 
   # Rules for differentiation
   def deriv({:num, _}, _) do {:num, 0} end
@@ -60,8 +74,16 @@ defmodule Derivative do
     }
   end
 
-  # Rule for x^n
   # Rule for ln(x)
+
+  def deriv({:ln, e}, v) do
+    {:mul,
+      {:div, {:num, 1}, e}, deriv(e, v)
+    }
+  end
+
+  # Rule for 1/x
+
   # Rule for sqrt(x)
   # Rule for sin(x)
 
@@ -74,6 +96,9 @@ defmodule Derivative do
   end
   def simplify({:exp, e1, e2}) do
     simplify_exp(simplify(e1), simplify(e2))
+  end
+  def simplify({:ln, e}) do
+    simplify_ln(simplify(e))
   end
   def simplify(e) do e end
 
@@ -100,8 +125,11 @@ defmodule Derivative do
   def simplify_exp(e1, {:num, 1})  do e1 end
   def simplify_exp(e1, e2)  do {:exp, e1, e2} end
 
-  # Simplification for x^n
   # Simplification for ln(x)
+  def simplify_ln({:num, 1}) do {:num, 0} end
+  def simplify_ln({:num, e}) do {:ln, e} end
+
+  # Simplification for 1/x
   # Simplification for sqrt(x)
   # Simplification for sin(x)
 
@@ -122,6 +150,16 @@ defmodule Derivative do
   # Pretty print for exponent
   def pprint({:exp, e1, e2}) do
     "#{pprint(e1)}^(#{pprint(e2)})"
+  end
+
+  # Pretty print for ln
+  def pprint({:ln, e}) do
+    "ln(#{pprint(e)})"
+  end
+
+  # Pretty print for division
+  def pprint({:div, e1, e2}) do
+    "(#{pprint(e1)}/#{pprint(e2)})"
   end
 
 end
