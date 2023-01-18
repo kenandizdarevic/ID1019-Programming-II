@@ -114,7 +114,7 @@ defmodule Derivative do
     }
   end
 
-  # Logaritmic derivative
+  # Logarithmic derivative
   def deriv({:ln, e}, v) do
     {:mul,
       deriv(e, v),
@@ -179,13 +179,10 @@ defmodule Derivative do
   def simplify_sub({:num, n1}, {:num, n2}) do {:num, n1-n2} end
   def simplify_sub(e1, e2)  do {:sub, e1, e2} end
 
-  def simplify_mul({:num, 0}, _) do {:num, 0} end
   def simplify_mul(_, {:num, 0})  do {:num, 0} end
   def simplify_mul({:num, 1}, e2) do e2 end
   def simplify_mul(e1, {:num, 1})  do e1 end
-  def simplify_mul({:num, n1}, {:num, n2}) do
-    {:num, n1*n2}
-  end
+  def simplify_mul({:num, n1}, {:num, n2}) do {:num, n1*n2} end
   def simplify_mul(e1, e2)  do {:mul, e1, e2} end
 
   def simplify_exp(_, {:num, 0}) do {:num, 1} end
@@ -193,10 +190,10 @@ defmodule Derivative do
   def simplify_exp(e1, e2) do {:exp, e1, e2} end
 
   def simplify_ln({:num, 1}) do {:num, 0} end
-  def simplify_ln({:num, 0}) do "Undefined" end # does this work??
+  def simplify_ln({:num, 0}) do :nil end
   def simplify_ln(e) do {:ln, e} end
 
-  def simplify_div(_, {:num, 0}) do "Undefined" end # does this work??
+  def simplify_div(_, {:num, 0}) do :nil end
   def simplify_div({:num, 0}, _) do {:num, 0} end
   def simplify_div(e1, {:num, 1}) do e1 end
   def simplify_div(e1, e2) do {:div, e1, e2} end
