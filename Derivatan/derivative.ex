@@ -68,6 +68,24 @@ defmodule Derivative do
     IO.write("Simplified: #{pprint(simplify(d))}\n")
     :ok
   end
+
+  def testSin do
+    e = {:sin, {:var, :x}}
+    d = deriv(e, :x)
+    IO.write("Expression: #{pprint(e)}\n")
+    IO.write("Derivative: #{pprint(d)}\n")
+    IO.write("Simplified: #{pprint(simplify(d))}\n")
+    :ok
+  end
+
+  def testCos do
+    e = {:cos, {:var, :x}}
+    d = deriv(e, :x)
+    IO.write("Expression: #{pprint(e)}\n")
+    IO.write("Derivative: #{pprint(d)}\n")
+    IO.write("Simplified: #{pprint(simplify(d))}\n")
+    :ok
+  end
   # ----------------------------------
 
   # ----------- Rules for differentiation -----------
@@ -123,31 +141,43 @@ defmodule Derivative do
     }
   end
 
-  # Chain rule
-
-  # Trigonometric derivative
+  # Trigonometric derivatives
   def deriv({:sin, e}, v) do
-
+    {:mul,
+      deriv(e, v),
+      {:cos, e}
+    }
   end
 
   def deriv({:cos, e}, v) do
-
+    {:mul,
+      {:num, -1},
+      {:mul, deriv(e, v), {:sin, e}}
+    }
   end
   # -------------------------------------------------
 
   # ----------- Simplification -----------
   def simplify({:add, e1, e2}) do simplify_add(simplify(e1), simplify(e2)) end
+  def simplify({:sub, e1, e2}) do simplify_sub(simplify(e1), simplify(e2)) end
   def simplify({:mul, e1, e2}) do simplify_mul(simplify(e1), simplify(e2)) end
   def simplify({:exp, e1, e2}) do simplify_exp(simplify(e1), simplify(e2)) end
   def simplify({:ln, e}) do simplify_ln(simplify(e)) end
   def simplify({:div, e1, e2}) do simplify_div(simplify(e1), simplify(e2)) end
   def simplify({:sqrt, e}) do simplify_sqrt(simplify(e)) end
+  def simplify({:sin, e}) do simplify_sin(simplify(e)) end
+  def simplify({:cos, e}) do simplify_cos(simplify(e)) end
   def simplify(e) do e end
 
   def simplify_add({:num, 0}, e2) do e2 end
   def simplify_add(e1, {:num, 0})  do e1 end
   def simplify_add({:num, n1}, {:num, n2}) do {:num, n1+n2} end
   def simplify_add(e1, e2)  do {:add, e1, e2} end
+
+  def simplify_sub({:num, 0}, e2) do {:mul, {:num, -1}, e2} end
+  def simplify_sub(e1, {:num, 0})  do e1 end
+  def simplify_sub({:num, n1}, {:num, n2}) do {:num, n1-n2} end
+  def simplify_sub(e1, e2)  do {:sub, e1, e2} end
 
   def simplify_mul({:num, 0}, _) do {:num, 0} end
   def simplify_mul(_, {:num, 0})  do {:num, 0} end
@@ -174,35 +204,25 @@ defmodule Derivative do
   def simplify_sqrt({:num, 1}) do {:num, 1} end
   def simplify_sqrt({:num, 0}) do {:num, 0} end
   def simplify_sqrt(e) do {:sqrt, e} end
-  # Simplification for sin(x)
+
+  def simplify_sin({:num, 0}) do {:num, 0} end
+  def simplify_sin(e) do {:sin, e} end
+
+  def simplify_cos({:num, 0}) do {:num, 1} end
+  def simplify_cos(e) do {:cos, e} end
   # --------------------------------------
 
   # ----------- Pretty print -----------
   def pprint({:num, n}) do "#{n}" end
   def pprint({:var, v}) do "#{v}" end
-
-  def pprint({:add, e1, e2}) do
-    "(#{pprint(e1)} + #{pprint(e2)})"
-  end
-
-  def pprint({:mul, e1, e2}) do
-    "#{pprint(e1)} * #{pprint(e2)}"
-  end
-
-  def pprint({:exp, e1, e2}) do
-    "#{pprint(e1)}^(#{pprint(e2)})"
-  end
-
-  def pprint({:ln, e}) do
-    "ln(#{pprint(e)})"
-  end
-
-  def pprint({:div, e1, e2}) do
-    "(#{pprint(e1)}/#{pprint(e2)})"
-  end
-
-  def pprint({:sqrt, e}) do
-    "sqrt(#{pprint(e)})"
-  end
+  def pprint({:add, e1, e2}) do "(#{pprint(e1)} + #{pprint(e2)})" end
+  def pprint({:sub, e1, e2}) do "(#{pprint(e1)} - #{pprint(e2)})" end
+  def pprint({:mul, e1, e2}) do "#{pprint(e1)} * #{pprint(e2)}" end
+  def pprint({:exp, e1, e2}) do "#{pprint(e1)}^(#{pprint(e2)})" end
+  def pprint({:ln, e}) do "ln(#{pprint(e)})" end
+  def pprint({:div, e1, e2}) do "(#{pprint(e1)}/#{pprint(e2)})" end
+  def pprint({:sqrt, e}) do "sqrt(#{pprint(e)})" end
+  def pprint({:sin, e}) do "sin(#{pprint(e)})" end
+  def pprint({:cos, e}) do "cos(#{pprint(e)})" end
   # ------------------------------------
 end
