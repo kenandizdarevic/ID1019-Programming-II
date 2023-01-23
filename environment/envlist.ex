@@ -2,13 +2,13 @@ defmodule EnvList do
 
   def test do
     list = [{:a, 1}, {:b, 2}, {:c, 3}, {:d, 4}, {:e, 5}]
-    remove(list, :d)
+    remove(list, :a)
   end
 
   # Create empty list
   def new() do [] end
 
-  # CASES
+  # ----- CASES -----
   # 1. Empty map
   # 2. Same key in map as the one that is added
   # 3. Add new key
@@ -16,7 +16,7 @@ defmodule EnvList do
   def add([{key, _} | tail], key, value) do [{key, value} | tail] end
   def add([head | tail], key, value) do [head | add(tail, key, value)] end
 
-  # CASES
+  # ----- CASES -----
   # 1. Empty map
   # 2. Key not in map
   # 3. Key in map
@@ -24,7 +24,7 @@ defmodule EnvList do
   def lookup([{key, value} | _], key) do {key, value} end
   def lookup([_ | tail], key) do lookup(tail, key) end
 
-  # CASES
+  # ----- CASES -----
   # 1. Empty map
   # 2. Key not in map
   # 3. Key in map
