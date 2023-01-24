@@ -6,7 +6,8 @@ defmodule EnvTree do
     tree = add(tree, 8, 13)
     tree = add(tree, 12, 13)
     tree = add(tree, 3, 13)
-    lookup(tree, 4)
+
+    remove(tree, 8)
   end
 
   # Create empty map
@@ -26,8 +27,8 @@ defmodule EnvTree do
   def remove({:node, key, _, nil, right}, key) do right end
   def remove({:node, key, _, left, nil}, key) do left end
   def remove({:node, key, _, left, right}, key) do
-    ... = leftmost(right)
-    {:node, ..., ..., ..., ...}
+    {key, value, rest} = leftmost(right)
+    {:node, key, value, left, rest}
   end
   def remove({:node, k, v, left, right}, key) when key < k do
     {:node, k, v, remove(left, key), right}
@@ -36,9 +37,9 @@ defmodule EnvTree do
     {:node, k, v, left, remove(right, key)}
   end
 
-  def leftmost({:node, key, value, nil, rest}) do ... end
+  def leftmost({:node, key, value, nil, rest}) do {key, value, rest} end
   def leftmost({:node, k, v, left, right}) do
-    ... = leftmost(left)
-    ...
+    {key, value, rest} = leftmost(left)
+    {key, value, {:node, k, v, rest, right}}
   end
 end
