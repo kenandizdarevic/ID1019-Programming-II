@@ -20,7 +20,6 @@ defmodule Derivative do
           {:num, 4}
         }
     d = deriv(e, :x)
-
     IO.write("Expression: #{pprint(e)}\n")
     IO.write("Derivative: #{pprint(d)}\n")
     IO.write("Simplified: #{pprint(simplify(d))}\n")
@@ -222,4 +221,5 @@ defmodule Derivative do
   def pprint({:sin, e}) do "sin(#{pprint(e)})" end
   def pprint({:cos, e}) do "cos(#{pprint(e)})" end
   # ------------------------------------
+
 end
