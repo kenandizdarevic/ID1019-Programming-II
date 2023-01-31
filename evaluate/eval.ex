@@ -11,12 +11,13 @@ defmodule Evaluate do
 
     # We use Elixirs own Map
     # Create new Map %{}
-    # Add keys to map with .put
-    # Retrieve keys to map with .get
+    # Add keys to map with Map.put
+    # Retrieve keys from map with Map.get
 
     def test  do
       env = %{a: 1, b: 2, c: 3, d: 4}
-      expr = {:add, {:add, {:mul, {:num, 2}, {:var, :a}}, {:num, 3}}, {:q, 6, 4}}
+      expr = {:div, {:add, {:add, {:mul, {:num, 2}, {:var, :a}}, {:num, 3}}, {:q, 6, 2}}, {:num, 4}}
+      expr1 = {:mul, {:q, 5, 2}, {:q, 4, 3}}
 
       eval(expr, env)
     end
@@ -47,7 +48,21 @@ defmodule Evaluate do
     def divi({:q, n, m}, {:q, x, y}) do {:q, n*y, m*x} end
     def divi({:q, n, m}, a) do {:q, n, m*a} end
     def divi(a, {:q, n, m}) do {:q, n, m*a} end
-    def divi(a, b) do a / b end
+    def divi(a, b) do
+      if(rem(trunc(a), trunc(b)) == 0) do
+        trunc(a / b)
+      else
+        x = gcd(a, b)
+        if(x == 1) do
+          {:q, a, b}
+        else
+          divi(trunc((a/x)),trunc((b/x)))
+        end
+      end
+    end
 
-    def quotient(a, b) do (a / b) / 1.0  end
+    def quotient(a, b) do trunc(a/gcd(a, b)) / trunc(b/gcd(a, b)) end
+
+    def gcd(a, 0) do a end
+    def gcd(a, b) do gcd(b, rem(a, b)) end
 end
