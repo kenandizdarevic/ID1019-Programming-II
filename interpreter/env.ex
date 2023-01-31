@@ -7,6 +7,7 @@ defmodule Env do
   def lookup(id, [{id, str} | tail]) do {id, str} end
   def lookup(id, [head | tail]) do lookup(id, tail) end
 
-  def remove(id, []) do [] end
-
+  def remove([], _) do [] end
+  def remove(id, [{id, str} | tail]) do tail end
+  def remove(id, [head | tail]) do [head | remove(id, tail)] end
 end
