@@ -16,7 +16,7 @@ defmodule Evaluate do
 
     def test  do
       env = %{a: 1, b: 2, c: 3, d: 4}
-      expr = {:div, {:add, {:add, {:mul, {:num, 2}, {:var, :a}}, {:num, 3}}, {:q, 6, 8}}, {:num, 4}}
+      expr = {:div, {:add, {:add, {:mul, {:num, 2}, {:var, :a}}, {:num, 3}}, {:q, 6, 9}}, {:num, 4}}
       expr1 = {:mul, {:q, 5, 2}, {:q, 4, 3}}
 
       eval(expr, env)
@@ -49,10 +49,10 @@ defmodule Evaluate do
     def divi({:q, n, m}, a) do {:q, n, m*a} end
     def divi(a, {:q, n, m}) do {:q, n, m*a} end
     def divi(a, b) do
-      if(rem(trunc(a), trunc(b)) == 0) do
+      if(rem(a, b) == 0) do
         trunc(a / b)
       else
-        x = gcd(trunc(a), trunc(b))
+        x = gcd(a, b)
         if(x == 1) do
           {:q, a, b}
         else
@@ -61,7 +61,7 @@ defmodule Evaluate do
       end
     end
 
-    def quotient(a, b) do trunc(a/gcd(a, b)) / trunc(b/gcd(a, b)) end
+    def quotient(a, b) do {:q, trunc(a/gcd(a, b)), trunc(b/gcd(a, b))} end
 
     def gcd(a, 0) do a end
     def gcd(a, b) do gcd(b, rem(a, b)) end
