@@ -13,4 +13,9 @@ defmodule Env do
   def remove([id|tail], env) do remove(id, remove(tail, env)) end
   def remove(id, [{id, _}|tail]) do tail end
   def remove(id, [head|tail]) do [head|remove(id, tail)] end
+
+  def closure([], env) do env end
+  # Add closure/2
+
+  # Add args/3
 end

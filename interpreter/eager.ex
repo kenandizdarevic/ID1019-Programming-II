@@ -1,6 +1,5 @@
 defmodule Eager do
 
-  # Create new environment
   def eval(seq) do eval_seq(seq, []) end
 
   def test do
@@ -12,8 +11,8 @@ defmodule Eager do
     eval(seq)
   end
 
-  # ------------ EVALUATION OF EXPRESSION ------------
   def eval_expr({:atom, id}, _) do {:ok, id} end
+
   def eval_expr({:var, id}, env) do
     case Env.lookup(id, env) do
       nil ->
@@ -22,6 +21,7 @@ defmodule Eager do
          {:ok, str}
     end
   end
+
   # Evaluation of a compound structure
   def eval_expr({:cons, headExpr, tailExpr}, env) do
     case eval_expr(headExpr, env) do
@@ -70,11 +70,16 @@ defmodule Eager do
           :error
     end
   end
- # ---------------------------------------------------
 
- # --------------- PATTERN MATCHING ------------------
+  def eval_expr({:fun, id}, _) do
+    {par, seq} = apply(Prgm, id, [])
+    {:ok, {:closure, par, seq, Env.new()}}
+  end
+
  def eval_match(:ignore, _, env) do {:ok, env} end
+
  def eval_match({:atom, id}, id, env) do {:ok, env} end
+
  def eval_match({:var, id}, str, env) do
     case Env.lookup(id, env) do
       nil ->
@@ -85,7 +90,7 @@ defmodule Eager do
         :fail
     end
   end
-  # Check powerpoint for this rule
+
   def eval_match({:cons, headPtr, tailPtr}, {headStr, tailStr}, env) do
     case eval_match(headPtr, headStr, env) do
       :fail ->
@@ -94,17 +99,17 @@ defmodule Eager do
         eval_match(tailPtr, tailStr, env)
     end
   end
+
   def eval_match(_, _, _) do :fail end
 
- # ------------------------------------------
-
- # ----------------- SOCPE -----------------
   def eval_scope(ptr, env) do
     Env.remove(extract_vars(ptr), env)
   end
+
   def eval_seq([exp], env) do
     eval_expr(exp, env)
   end
+
   def eval_seq([{:match, ptr, exp} | tail], env) do
     case eval_expr(exp, env) do
       :error ->
@@ -119,19 +124,24 @@ defmodule Eager do
         end
     end
   end
- # -----------------------------------------
+
   # Extracts all variables from a pattern, returns list
   def extract_vars(ptr) do
     extract_vars(ptr, [])
   end
+
   def extract_vars({:atom, _}, vars) do vars end
+
   def extract_vars(:ignore, vars) do vars end
+
   def extract_vars({:var, var}, vars) do [var | vars] end
+
   def extract_vars({:cons, head, tail}, vars) do
     extract_vars(tail, extract_vars(head, vars))
   end
 
   def eval_cls([], _, _) do :error end
+
   def eval_cls([{:clause, ptr, seq} | cls], str, env) do
     case eval_match(ptr, str, eval_scope(ptr, env)) do
       :fail ->
@@ -142,7 +152,9 @@ defmodule Eager do
 end
 
   def eval_args(args, env) do eval_args(args, env, []) end
+
   def eval_args([], _, strs) do  {:ok, Enum.reverse(strs)} end
+
   def eval_args([head | tail], env, strs) do
     case eval_expr(head, env) do
       :error ->
