@@ -149,7 +149,7 @@ defmodule Eager do
       {:ok, env} ->
         eval_seq(seq, env)
     end
-end
+  end
 
   def eval_args(args, env) do eval_args(args, env, []) end
 

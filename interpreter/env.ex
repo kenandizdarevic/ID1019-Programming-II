@@ -14,8 +14,23 @@ defmodule Env do
   def remove(id, [{id, _}|tail]) do tail end
   def remove(id, [head|tail]) do [head|remove(id, tail)] end
 
-  def closure([], env) do env end
-  # Add closure/2
+  def closure(keyss, env) do
+    List.foldr(keyss, [], fn(key, acc) ->
+      case acc do
+        :error ->
+          :error
+        cls ->
+          case lookup(key, env) do
+            {key, value} ->
+              [{key, value} | cls]
+            nil ->
+              :error
+          end
+      end
+    end)
+  end
 
-  # Add args/3
+  def args(pars, args, env) do
+    List.zip([pars, args]) ++ env
+  end
 end
