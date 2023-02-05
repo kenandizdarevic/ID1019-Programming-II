@@ -22,3 +22,5 @@ end
 # Move last disc from start to end
 # Move top n-1 discs from middle to end
 # Recursive call with n-1 and mid as starting position
+
+# Total moves are calculated with 2^n - 1
