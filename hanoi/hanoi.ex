@@ -7,10 +7,13 @@ defmodule Hanoi do
   def hanoi(0, _, _, _) do [] end
 
   def hanoi(n, start, mid, finish) do
-    hanoi(n-1, start, finish, mid) ++ [{:move, start, finish}] ++ hanoi(n-1, mid, start, finish)
+    hanoi(n-1, start, finish, mid) ++
+    [{:move, start, finish}] ++
+    hanoi(n-1, mid, start, finish)
   end
 end
 
+# ----- RECURSION -----
 # 1. Show that base case works
 # 2. Assume that f(n-1) works, includes variety of
 # starting and ending positions.
