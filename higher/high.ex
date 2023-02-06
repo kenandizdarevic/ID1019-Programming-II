@@ -1,12 +1,11 @@
 defmodule High do
 
   def test do
-    listInt = [1, 2, 3, 4, 6, 7, 8]
-    listDog = [:cow, :dog, :cat]
+    listVal = [1, 2, 3, 4, 6, 7, 8]
+    listAni = [:cow, :dog, :cat]
 
     f = fn(x) -> x > 5 end
-    filter(listInt, f)
-
+    filter(listVal, f)
   end
 
   def double([]) do [] end
@@ -32,10 +31,11 @@ defmodule High do
       :five ->
         [head + 5 | double_five_animal(tail, f)]
       :animal ->
-        if head == :dog do
-          [:fido | double_five_animal(tail, f)]
-        else
-          [head | double_five_animal(tail, f)]
+        case head == :dog do
+          true ->
+            [:fido | double_five_animal(tail, f)]
+          false ->
+            [head | double_five_animal(tail, f)]
         end
     end
   end
