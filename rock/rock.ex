@@ -11,11 +11,11 @@ defmodule Rock do
                 {"C", "X"} => 2, {"C", "Y"} => 6, {"C", "Z"} => 7}
 
     IO.puts("Total points task 1: #{calculate(points1)}")
-    IO.puts("Total points task 1: #{calculate(points2)}")
+    IO.puts("Total points task 2: #{calculate(points2)}")
   end
 
   def calculate(points) do
-    {:ok, games} = File.read("C:/Users/Kenan/Desktop/Skola/Programmering 2/Programming-2/rock/games.txt")
+    {:ok, games} = File.read("rock\rock.ex")
     matches = String.split(games, "\r\n")
     score = matches
       |> Enum.map(fn match -> String.split(match, " ") end)
