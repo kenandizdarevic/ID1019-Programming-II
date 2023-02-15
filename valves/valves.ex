@@ -2,17 +2,12 @@ defmodule Valves do
 
   def task() do
     start = :AA
-    #rows = File.stream!("input.csv")
+    #rows = File.stream!("day16.csv")
     rows = sample()
-    map = parse(rows)
-    time = 30
-    closed = []
-    opened = []
+    parse(rows)
 
-    {max_rate, max_path} = search(start, time, closed, opened, 0, map, [])
-
-    IO.puts("Maximum rate: #{max_rate}")
-    IO.inspect(max_path)
+   # IO.puts("Maximum rate: #{max_rate}")
+   # IO.inspect(max_path)
   end
 
   ## turning rows
@@ -49,54 +44,29 @@ defmodule Valves do
      "Valve JJ has flow rate=21; tunnel leads to valve II"]
   end
 
-  # ---------- ARGUMENTS ----------
-  # valve: current valve being considered
-  # time: time left
-  # closed: valves which are currently closed
-  # opened: valves which are currently open
-  # rate: current rate of flow
-  # map:
-  # path: current path being taken
-
-
   # No time left
-  def search(_, 0, _, _, _, _, path) do {0, path} end
-  # All valves are opened
-  def search(_, time, [], _, rate, _, path) do
-    {rate * time, path}
+  def memory(_valve, 0, _closed, _open, _rate, _map, path, cache) do
+    {0, path, cache}
+  end
+  # All valves are open
+  def memory(valve, time, [], open, rate, _map, path, cache) do
+    total = rate * time
+    cache = Memory.store({valve, time, open}, {total, path}, cache)
+    {total, path, cache}
   end
 
-  def search(valve, time, closed, opened, rate, map, path) do
-    {valveRate, tunnels} = Map.get(map, valve)
-
-    {maxRate, maxPath} =
-      case Enum.member?(closed, valve) do
-        true ->
-          [removed | remaining] = closed
-          added = insert(opened, valve)
-          {subMaxRate, subMaxPath} =
-            search(removed, time - 1, remaining, added, rate + valveRate, map, [valve | path])
-          {subMaxRate + rate, subMaxPath}
-        false ->
-          {rate * time, path}
-      end
-
-    {finalRate, finalPath} =
-      Enum.reduce(tunnels, {maxRate, maxPath}, fn(nextValve, {maxRate, maxPath}) ->
-        {subRate, subPath} =
-          search(nextValve, time - 1, closed, opened,rate, map, path)
-        subRate = subRate + rate
-        if subRate > maxRate do
-          {subRate, subPath}
-        else
-          {maxRate, maxPath}
-        end
-      end)
-
-    {finalRate, finalPath}
+  def memory(valve, time, closed, open, rate, map, path, cache) do
+    case Memory.lookup({valve, time, open}, cache) do
+      nil ->
+        # No previous solution found, search for new!
+        {max, path, cache} = search(valve, time, closed, open, rate, map, path, cache)
+        mem = Memory.store({valve, time, open}, {max, path}, cache)
+        {max, path, cache}
+      {max, path} ->
+        # Solution found, return it!
+        {max, path, cache}
+    end
   end
-
-  def insert(list, element) do [element | list] end
 
 
 end
