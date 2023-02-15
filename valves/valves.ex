@@ -54,13 +54,13 @@ defmodule Valves do
     cache = Memory.store({valve, time, open}, {total, path}, cache)
     {total, path, cache}
   end
-
+  # Check if we have searched the path before
   def memory(valve, time, closed, open, rate, map, path, cache) do
     case Memory.lookup({valve, time, open}, cache) do
       nil ->
-        # No previous solution found, search for new!
+        # No previous solution found, search for new & save it!
         {max, path, cache} = search(valve, time, closed, open, rate, map, path, cache)
-        mem = Memory.store({valve, time, open}, {max, path}, cache)
+        cache = Memory.store({valve, time, open}, {max, path}, cache)
         {max, path, cache}
       {max, path} ->
         # Solution found, return it!
