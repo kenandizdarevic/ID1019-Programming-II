@@ -1,23 +1,13 @@
 defmodule Valves do
 
-  def task() do
+  def task(time) do
     start = :AA
-    #rows = File.stream!("day16.csv")
-    rows = sample()
-    parse(rows)
 
-   # IO.puts("Maximum rate: #{max_rate}")
-   # IO.inspect(max_path)
+    closed = Enum.map(map, fn({valve, _}) -> valve end)
+    {max, _, path} = memory(start, time, closed, [], 0, map, [], Memory.new())
+    {max, Enum.reverse(path)}
+    IO.puts("Maximum rate: #{max}")
   end
-
-  ## turning rows
-  ##
-  ##  "Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE"
-  ##
-  ## into tuples
-  ##
-  ##  {:DD, {20, [:CC, :AA, :EE]}
-  ##
 
   def parse(input) do
     Enum.map(input, fn(row) ->
@@ -31,26 +21,13 @@ defmodule Valves do
     end)
   end
 
-  def sample() do
-    ["Valve AA has flow rate=0; tunnels lead to valves DD, II, BB",
-     "Valve BB has flow rate=13; tunnels lead to valves CC, AA",
-     "Valve CC has flow rate=2; tunnels lead to valves DD, BB",
-     "Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE",
-     "Valve EE has flow rate=3; tunnels lead to valves FF, DD",
-     "Valve FF has flow rate=0; tunnels lead to valves EE, GG",
-     "Valve GG has flow rate=0; tunnels lead to valves FF, HH",
-     "Valve HH has flow rate=22; tunnel leads to valve GG",
-     "Valve II has flow rate=0; tunnels lead to valves AA, JJ",
-     "Valve JJ has flow rate=21; tunnel leads to valve II"]
-  end
-
   # No time left
   def memory(_valve, 0, _closed, _open, _rate, _map, path, cache) do
     {0, path, cache}
   end
   # All valves are open
   def memory(valve, time, [], open, rate, _map, path, cache) do
-    total = rate * time
+    total = time * rate
     cache = Memory.store({valve, time, open}, {total, path}, cache)
     {total, path, cache}
   end
@@ -68,5 +45,36 @@ defmodule Valves do
     end
   end
 
+  def search(valve, time, closed, open, rate, map, path, cache) do
+    {currentRate, tunnels} = map[valve]
+    {currentMax, currentPath, currentCache} = if Enum.member?(closed, valve) do
+      # Valve is closed, open it
+      removed = List.delete(closed, valve)
+      {currentMax, currentPath, currentCache} = memory(valve, time - 1, removed, Memory.insert(valve, open), rate + currentRate, map, [valve | path], cache)
+      currentMax = currentMax + rate
+      {currentMax, currentPath, currentCache}
+    else
+      # Valve is alreday open, stay and wait
+      {rate * time, path, cache}
+    end
 
+    Enum.reduce(tunnels, {currentMax, currentPath, cache},
+      fn({next, distance}, {currentMax, currentPath, cache}) ->
+        case distance < time do
+          true ->
+          # Move to next valve
+            {newMax, newPath, cache} = memory(next, time - distance, closed, open, rate, map, path, cache)
+            newMax = newMax + (rate * distance)
+            case newMax > currentMax do
+              true ->
+                {newMax, newPath, cache}
+              false ->
+                {currentMax, currentPath, cache}
+            end
+          false ->
+            {currentMax, currentPath, cache}
+        end
+      end
+    )
+  end
 end
