@@ -43,12 +43,12 @@ defmodule Philosopher do
           :no ->
             IO.puts("#{name} has aborted wait for chopstick!")
             Chopstick.return(right)
-            eating(hunger, left, right, name, ctrl)
+            dreaming(hunger, left, right, name, ctrl)
         end
       :no ->
         IO.puts("#{name} has aborted for chopstick!")
         Chopstick.return(left)
-        eating(hunger, left, right, name, ctrl)
+        dreaming(hunger, left, right, name, ctrl)
     end
   end
 end
