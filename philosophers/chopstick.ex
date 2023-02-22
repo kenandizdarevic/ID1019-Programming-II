@@ -8,19 +8,19 @@ defmodule Chopstick do
   # Recive the lock, remember that you gave away the lock -> statechange to gone()
   def available() do
     receive do
-      {:request, from} ->
+      {:request, ref, from} ->
         :granted
-        send(from, :granted)
-        gone()
+        send(from, {:granted, ref})
+        gone(ref)
       :quit ->
         :ok
     end
   end
 
   # Assumes that the one who sends :return is a philosopher, can be tricked
-  def gone() do
+  def gone(ref) do
     receive do
-      :return ->
+      {:return, ^ref} ->
         available()
       :quit ->
         :ok
@@ -33,14 +33,28 @@ defmodule Chopstick do
     receive do
       :granted ->
         :ok
-    after
-      timeout ->
-        :no
+    after timeout ->
+      :no
     end
   end
 
-  def return({:stick, stick}) do
-    send(stick, :return)
+  def async({:stick, stick}, ref) do
+    send(stick, {:request, ref, self()})
+  end
+
+  def sync(ref, timeout) when is_number(timeout) do
+    receive do
+      {:granted, ^ref} ->
+        :ok
+      {:granted, _ref} ->
+        sync(ref, timeout)
+    after timeout ->
+      :no
+    end
+  end
+
+  def return({:stick, stick}, ref) do
+    send(stick, {:return, ref})
   end
 
   def terminate({:stick, stick}) do

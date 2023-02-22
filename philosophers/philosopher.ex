@@ -16,15 +16,15 @@ defmodule Philosopher do
 
   def dreaming(hunger, left, right, name, ctrl) do
     IO.puts("#{name} is dreaming!")
-    sleep(50)
+    sleep(500)
     IO.puts("#{name} is awake!")
     waiting(hunger, left, right, name, ctrl)
   end
 
-  def eating(hunger, left, right, name, ctrl) do
-    sleep(10)
-    Chopstick.return(left)
-    Chopstick.return(right)
+  def eating(hunger, left, right, name, ctrl, ref) do
+    sleep(100)
+    Chopstick.return(left, ref)
+    Chopstick.return(right, ref)
     IO.puts("#{name} has eaten one portion!")
     dreaming(hunger - 1, left, right, name, ctrl)
   end
@@ -32,22 +32,26 @@ defmodule Philosopher do
   # Chopstick.request() will only return :ok
   def waiting(hunger, left, right, name, ctrl) do
     IO.puts("#{name} is waiting for chopsticks!")
-    case Chopstick.request(left, 1000) do
+
+    ref = make_ref()
+    Chopstick.async(left, ref)
+    Chopstick.async(right, ref)
+
+    case Chopstick.sync(ref, 1000) do
       :ok ->
         IO.puts("#{name} recieved one chopstick!")
         sleep(1000)
-        case Chopstick.request(right, 1000) do
+        case Chopstick.sync(ref, 1000) do
           :ok ->
             IO.puts("#{name} is now able to eat!")
-            eating(hunger, left, right, name, ctrl)
+            eating(hunger, left, right, name, ctrl, ref)
           :no ->
             IO.puts("#{name} has aborted wait for chopstick!")
-            Chopstick.return(right)
+            Chopstick.return(left, ref)
             dreaming(hunger, left, right, name, ctrl)
         end
       :no ->
-        IO.puts("#{name} has aborted for chopstick!")
-        Chopstick.return(left)
+        IO.puts("#{name} has aborted wait for chopstick!")
         dreaming(hunger, left, right, name, ctrl)
     end
   end
