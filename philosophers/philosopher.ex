@@ -32,15 +32,23 @@ defmodule Philosopher do
   # Chopstick.request() will only return :ok
   def waiting(hunger, left, right, name, ctrl) do
     IO.puts("#{name} is waiting for chopsticks!")
-    case Chopstick.request(left) do
+    case Chopstick.request(left, 1000) do
       :ok ->
         IO.puts("#{name} recieved one chopstick!")
-        case Chopstick.request(right) do
+        sleep(1000)
+        case Chopstick.request(right, 1000) do
           :ok ->
             IO.puts("#{name} is now able to eat!")
             eating(hunger, left, right, name, ctrl)
+          :no ->
+            IO.puts("#{name} has aborted wait for chopstick!")
+            Chopstick.return(right)
+            eating(hunger, left, right, name, ctrl)
         end
+      :no ->
+        IO.puts("#{name} has aborted for chopstick!")
+        Chopstick.return(left)
+        eating(hunger, left, right, name, ctrl)
     end
   end
-
 end

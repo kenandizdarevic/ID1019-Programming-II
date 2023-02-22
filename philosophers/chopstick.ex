@@ -28,11 +28,14 @@ defmodule Chopstick do
   end
 
   # If request is sent before release the request will wait in the queue
-  def request({:stick, stick}) do
+  def request({:stick, stick}, timeout) when is_number(timeout) do
     send(stick, {:request, self()})
     receive do
       :granted ->
         :ok
+    after
+      timeout ->
+        :no
     end
   end
 
