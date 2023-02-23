@@ -14,7 +14,7 @@ defmodule Philosopher do
     send(ctrl, :done)
   end
 
-  def dreaming(_hunger, 0, _left, _rigjt, name, ctrl) do
+  def dreaming(_hunger, 0, _left, _right, name, ctrl) do
       IO.puts("#{name} has no strength left!")
       send(ctrl, :done)
   end
