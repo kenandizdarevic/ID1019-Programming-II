@@ -42,12 +42,12 @@ defmodule Chopstick do
     send(stick, {:request, ref, self()})
   end
 
-  def sync(ref, timeout) when is_number(timeout) do
+  def granted(ref, timeout) when is_number(timeout) do
     receive do
       {:granted, ^ref} ->
         :ok
       {:granted, _ref} ->
-        sync(ref, timeout)
+        granted(ref, timeout)
     after timeout ->
       :no
     end

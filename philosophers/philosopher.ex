@@ -41,11 +41,11 @@ defmodule Philosopher do
     ref = make_ref()
     Chopstick.async(left, ref)
     Chopstick.async(right, ref)
-    case Chopstick.sync(ref, 1000) do
+    case Chopstick.granted(ref, 1000) do
       :ok ->
         IO.puts("#{name} recieved one chopstick!")
-        sleep(3000)
-        case Chopstick.sync(ref, 1000) do
+        sleep(1000)
+        case Chopstick.granted(ref, 1000) do
           :ok ->
             IO.puts("#{name} is now able to eat!")
             eating(hunger, strength, left, right, name, ctrl, ref)
