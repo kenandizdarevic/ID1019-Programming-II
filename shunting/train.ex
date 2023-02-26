@@ -47,8 +47,8 @@ defmodule Train do
   def main([head | tail], n) do
     case main(tail, n) do
       {0, remain, take} ->
-        {k, [head | remain], take}
-      {_, remain, take} ->
+        {0, [head | remain], take}
+      {k, remain, take} ->
         {k - 1, remain, [head | take]}
       end
   end
