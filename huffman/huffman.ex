@@ -62,22 +62,56 @@ defmodule Huffman do
   end
 
   def encode_table(tree) do
-    # FIX
+    binary_encode(tree, [])
   end
 
   def decode_table(tree) do
-    # FIX
+    binary_encode(tree, [])
   end
 
-  def encode(text, table) do
-    # FIX
+  # Traverse the tree
+  def binary_encode({left, right}, path) do
+    left_code = binary_encode(left, [0 | path])
+    right_code = binary_encode(right, [1 | path])
+    left_code ++ right_code
+  end
+  def binary_encode(char, code) do
+    [{char, Enum.reverse(code)}]
   end
 
-  def decode(seq. tree) do
-    # FIX
+  def encode([], _) do [] end
+  def encode([char | tail], table) do
+    {_, code} = List.keyfind(table, char, 0)
+    code ++ encode(tail, table)
   end
 
-  # Tree has chars as leafs, low freq -> long branch, high -> short
-  # Leaf represented as single char and a node as {left, right}
-  # New node, {{c1, c2}, f1 + f2}
+  def decode([], _) do [] end
+  def decode(seq, table) do
+    {char, rest} = decode_char(seq, 1, table)
+    [char | decode(rest, table)]
+  end
+
+  def decode_char(seq, n, table) do
+    {code, rest} = Enum.split(seq, n)
+    case List.keyfind(table, code, 1) do
+      {char, _} ->
+        {char, rest}
+      nil ->
+        decode_char(seq, n + 1, table)
+    end
+  end
+
+  def read(file) do
+    {:ok, file} = File.open(file, [:read, :utf8])
+    binary = IO.read(file, :all)
+    File.close(file)
+
+    case :unicode.characters_to_list(binary, :utf8) do
+      {:incomplete, list, _} ->
+        list
+      list ->
+        list
+    end
+  end
+
 end
