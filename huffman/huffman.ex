@@ -22,6 +22,30 @@ defmodule Huffman do
     decode(seq, decode)
   end
 
+  def bench do
+    sample = read("./kallocain.txt")
+    tree0 = :os.system_time(:millisecond)
+    tree = tree(sample)
+    tree1 = :os.system_time(:millisecond)
+
+    table0 = :os.system_time(:millisecond)
+    table = encode_table(tree)
+    table1 = :os.system_time(:millisecond)
+
+    t0 = :os.system_time(:millisecond)
+    encode = encode(sample, table)
+    t1 = :os.system_time(:millisecond)
+
+    t2 = :os.system_time(:millisecond)
+    decode = decode(encode, table)
+    t3 = :os.system_time(:millisecond)
+
+    IO.puts("Tree time: #{tree1 - tree0} ms")
+    IO.puts("Decode time: #{table1 - table0} ms")
+    IO.puts("Encode time: #{t1 - t0} ms")
+    IO.puts("Decode time: #{t3 - t2} ms")
+  end
+
   # Create Huffman-tree from sample
   def tree(sample) do
     freq = freq(sample)
@@ -75,8 +99,8 @@ defmodule Huffman do
     right_code = binary_encode(right, [1 | path])
     left_code ++ right_code
   end
-  def binary_encode(char, code) do
-    [{char, Enum.reverse(code)}]
+  def binary_encode(char, path) do
+    [{char, Enum.reverse(path)}]
   end
 
   def encode([], _) do [] end
